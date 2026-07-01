@@ -1,0 +1,354 @@
+
+{% capture children %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% case section.settings.layout %}
+  {% when 'banner' %}
+    <div class="premium-banner" style="{% if section.settings.bg_image %}background-image: url('{{ section.settings.bg_image | image_url: width: 1920 }}');{% endif %} background-color: {{ section.settings.bg_color }};">
+      <div class="premium-banner__overlay" style="opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"></div>
+      <div class="premium-banner__content page-width">
+        {% if section.settings.subtitle != blank %}
+          <span class="premium-banner__subtitle">{{ section.settings.subtitle }}</span>
+        {% endif %}
+        {% if section.settings.title != blank %}
+          <h2 class="premium-banner__title">{{ section.settings.title }}</h2>
+        {% endif %}
+        {% if section.settings.text != blank %}
+          <p class="premium-banner__text">{{ section.settings.text }}</p>
+        {% endif %}
+        {% if section.settings.btn_label != blank and section.settings.btn_link != blank %}
+          <a href="{{ section.settings.btn_link }}" class="premium-banner__btn button">{{ section.settings.btn_label }}</a>
+        {% endif %}
+      </div>
+    </div>
+
+  {% when 'editorial' %}
+    <div class="premium-editorial page-width">
+      <div class="premium-editorial__grid">
+        <div class="premium-editorial__image">
+          {% if section.settings.image != blank %}
+            <img src="{{ section.settings.image | image_url: width: 800 }}" alt="{{ section.settings.title | escape }}" loading="lazy" class="image-reveal">
+          {% endif %}
+        </div>
+        <div class="premium-editorial__text">
+          {% if section.settings.subtitle != blank %}
+            <span class="premium-editorial__subtitle">{{ section.settings.subtitle }}</span>
+          {% endif %}
+          {% if section.settings.title != blank %}
+            <h2 class="premium-editorial__title">{{ section.settings.title }}</h2>
+          {% endif %}
+          {% if section.settings.text != blank %}
+            <p class="premium-editorial__text-content">{{ section.settings.text }}</p>
+          {% endif %}
+          {% if section.settings.btn_label != blank and section.settings.btn_link != blank %}
+            <a href="{{ section.settings.btn_link }}" class="premium-editorial__btn button">{{ section.settings.btn_label }}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  {% when 'collection-showcase' %}
+    <div class="premium-collection-showcase page-width">
+      {% if section.settings.title != blank %}
+        <div class="premium-collection-showcase__header">
+          <h2 class="premium-collection-showcase__title">{{ section.settings.title }}</h2>
+          {% if section.settings.subtitle != blank %}
+            <p class="premium-collection-showcase__subtitle">{{ section.settings.subtitle }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="premium-collection-showcase__grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'collection' %}
+            {% assign collection = collections[block.settings.collection] %}
+            <a href="{{ collection.url | default: '#' }}" class="premium-collection-card" {{ block.shopify_attributes }}>
+              <div class="premium-collection-card__image">
+                {% if collection.image != blank %}
+                  <img src="{{ collection.image | image_url: width: 600 }}" alt="{{ collection.title | escape }}" loading="lazy">
+                {% elsif collection.products.first.featured_image != blank %}
+                  <img src="{{ collection.products.first.featured_image | image_url: width: 600 }}" alt="{{ collection.title | escape }}" loading="lazy">
+                {% else %}
+                  <div class="premium-collection-card__placeholder">{{ 'collection' | placeholder_svg_tag }}</div>
+                {% endif %}
+                <div class="premium-collection-card__overlay"></div>
+              </div>
+              <div class="premium-collection-card__info">
+                <h3 class="premium-collection-card__title">{{ collection.title }}</h3>
+                <span class="premium-collection-card__count">{{ collection.all_products_count }} {{ 'products' | t }}</span>
+              </div>
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+  {% when 'lifestyle' %}
+    <div class="premium-lifestyle" style="background-color: {{ section.settings.bg_color }};">
+      <div class="premium-lifestyle__inner page-width">
+        <div class="premium-lifestyle__content">
+          {% if section.settings.subtitle != blank %}
+            <span class="premium-lifestyle__subtitle">{{ section.settings.subtitle }}</span>
+          {% endif %}
+          {% if section.settings.title != blank %}
+            <h2 class="premium-lifestyle__title">{{ section.settings.title }}</h2>
+          {% endif %}
+          {% if section.settings.text != blank %}
+            <p class="premium-lifestyle__text">{{ section.settings.text }}</p>
+          {% endif %}
+          {% if section.settings.btn_label != blank and section.settings.btn_link != blank %}
+            <a href="{{ section.settings.btn_link }}" class="premium-lifestyle__btn button">{{ section.settings.btn_label }}</a>
+          {% endif %}
+        </div>
+        <div class="premium-lifestyle__media">
+          {% if section.settings.image != blank %}
+            <img src="{{ section.settings.image | image_url: width: 800 }}" alt="{{ section.settings.title | escape }}" loading="lazy" class="image-reveal">
+          {% endif %}
+          {% if section.settings.video_url != blank %}
+            <div class="premium-lifestyle__video-wrapper">
+              <video class="premium-lifestyle__video" autoplay muted loop playsinline>
+                <source src="{{ section.settings.video_url }}" type="video/mp4">
+              </video>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  {% when 'featured-product' %}
+    {% assign product = section.settings.product %}
+    {% if product != blank %}
+      <div class="premium-featured-product page-width">
+        <div class="premium-featured-product__grid">
+          <div class="premium-featured-product__media">
+            {% if product.featured_image != blank %}
+              <img src="{{ product.featured_image | image_url: width: 800 }}" alt="{{ product.title | escape }}" loading="lazy" class="image-reveal">
+            {% endif %}
+            {% if product.images[1] != blank %}
+              <img src="{{ product.images[1] | image_url: width: 800 }}" alt="{{ product.title | escape }}" loading="lazy" class="premium-featured-product__media-secondary">
+            {% endif %}
+          </div>
+          <div class="premium-featured-product__info">
+            {% if section.settings.subtitle != blank %}
+              <span class="premium-featured-product__subtitle">{{ section.settings.subtitle }}</span>
+            {% endif %}
+            <h2 class="premium-featured-product__title">{{ product.title }}</h2>
+            <div class="premium-featured-product__price">{{ product.price | money }}</div>
+            {% if product.compare_at_price > product.price %}
+              <div class="premium-featured-product__compare">{{ product.compare_at_price | money }}</div>
+            {% endif %}
+            {% if section.settings.text != blank %}
+              <p class="premium-featured-product__text">{{ section.settings.text }}</p>
+            {% endif %}
+            <div class="premium-featured-product__actions">
+              <a href="{{ product.url }}" class="button premium-featured-product__btn">{{ 'View Details' | t }}</a>
+              {% if product.variants.first.available %}
+                <button class="button button-custom premium-featured-product__atc" data-product-id="{{ product.variants.first.id }}">{{ 'Add to Cart' | t }}</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+  {% when 'features' %}
+    <div class="premium-features page-width">
+      {% if section.settings.title != blank %}
+        <div class="premium-features__header">
+          <h2 class="premium-features__title">{{ section.settings.title }}</h2>
+          {% if section.settings.subtitle != blank %}
+            <p class="premium-features__subtitle">{{ section.settings.subtitle }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="premium-features__grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'feature' %}
+            <div class="premium-features__card" {{ block.shopify_attributes }}>
+              <div class="premium-features__icon">
+                {% if block.settings.icon != blank %}
+                  <span class="premium-features__icon-symbol">{{ block.settings.icon }}</span>
+                {% endif %}
+              </div>
+              <h3 class="premium-features__card-title">{{ block.settings.title }}</h3>
+              <p class="premium-features__card-text">{{ block.settings.text }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+  {% when 'cta-banner' %}
+    <div class="premium-cta" style="background-color: {{ section.settings.bg_color }};">
+      <div class="premium-cta__inner page-width">
+        {% if section.settings.subtitle != blank %}
+          <span class="premium-cta__subtitle">{{ section.settings.subtitle }}</span>
+        {% endif %}
+        {% if section.settings.title != blank %}
+          <h2 class="premium-cta__title">{{ section.settings.title }}</h2>
+        {% endif %}
+        {% if section.settings.text != blank %}
+          <p class="premium-cta__text">{{ section.settings.text }}</p>
+        {% endif %}
+        {% if section.settings.btn_label != blank and section.settings.btn_link != blank %}
+          <a href="{{ section.settings.btn_link }}" class="premium-cta__btn button">{{ section.settings.btn_label }}</a>
+        {% endif %}
+      </div>
+    </div>
+
+  {% when 'brand-story' %}
+    <div class="premium-brand-story page-width">
+      <div class="premium-brand-story__grid">
+        <div class="premium-brand-story__content">
+          {% if section.settings.subtitle != blank %}
+            <span class="premium-brand-story__subtitle">{{ section.settings.subtitle }}</span>
+          {% endif %}
+          {% if section.settings.title != blank %}
+            <h2 class="premium-brand-story__title">{{ section.settings.title }}</h2>
+          {% endif %}
+          {% if section.settings.text != blank %}
+            <div class="premium-brand-story__text">{{ section.settings.text }}</div>
+          {% endif %}
+          {% if section.settings.btn_label != blank and section.settings.btn_link != blank %}
+            <a href="{{ section.settings.btn_link }}" class="premium-brand-story__btn button">{{ section.settings.btn_label }}</a>
+          {% endif %}
+        </div>
+        <div class="premium-brand-story__media">
+          <div class="premium-brand-story__image-stack">
+            {% if section.settings.image_1 != blank %}
+              <img src="{{ section.settings.image_1 | image_url: width: 500 }}" alt="{{ section.settings.title | escape }}" loading="lazy" class="image-reveal">
+            {% endif %}
+            {% if section.settings.image_2 != blank %}
+              <img src="{{ section.settings.image_2 | image_url: width: 400 }}" alt="{{ section.settings.title | escape }}" loading="lazy" class="image-reveal">
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {% when 'product-carousel' %}
+    <div class="premium-carousel page-width">
+      {% if section.settings.title != blank %}
+        <div class="premium-carousel__header">
+          <h2 class="premium-carousel__title">{{ section.settings.title }}</h2>
+          {% if section.settings.subtitle != blank %}
+            <p class="premium-carousel__subtitle">{{ section.settings.subtitle }}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+      <div class="premium-carousel__track-wrapper">
+        <button class="premium-carousel__arrow premium-carousel__arrow--prev" aria-label="Previous">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="premium-carousel__track">
+          {% for block in section.blocks %}
+            {% if block.type == 'product' %}
+              {% assign carousel_product = block.settings.product %}
+              {% if carousel_product != blank %}
+                <div class="premium-carousel__item" {{ block.shopify_attributes }}>
+                  <a href="{{ carousel_product.url }}" class="premium-carousel__card">
+                    <div class="premium-carousel__card-media">
+                      {% if carousel_product.featured_image != blank %}
+                        <img src="{{ carousel_product.featured_image | image_url: width: 400 }}" alt="{{ carousel_product.title | escape }}" loading="lazy">
+                      {% endif %}
+                    </div>
+                    <div class="premium-carousel__card-info">
+                      <h3 class="premium-carousel__card-title">{{ carousel_product.title }}</h3>
+                      <span class="premium-carousel__card-price">{{ carousel_product.price | money }}</span>
+                    </div>
+                  </a>
+                </div>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+        <button class="premium-carousel__arrow premium-carousel__arrow--next" aria-label="Next">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+{% endcase %}
+
+{% schema %}
+{
+  "name": "Premium Content",
+  "class": "premium-content-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "banner", "label": "Promotional Banner" },
+        { "value": "editorial", "label": "Editorial Image + Text" },
+        { "value": "collection-showcase", "label": "Collection Showcase" },
+        { "value": "lifestyle", "label": "Lifestyle Storytelling" },
+        { "value": "featured-product", "label": "Featured Product Spotlight" },
+        { "value": "features", "label": "Trust / Feature Callouts" },
+        { "value": "cta-banner", "label": "CTA Banner" },
+        { "value": "brand-story", "label": "Brand Story" },
+        { "value": "product-carousel", "label": "Product Carousel" }
+      ],
+      "default": "banner"
+    },
+    { "type": "header", "content": "Content" },
+    { "type": "text", "id": "title", "label": "Title" },
+    { "type": "text", "id": "subtitle", "label": "Subtitle" },
+    { "type": "textarea", "id": "text", "label": "Text" },
+    { "type": "text", "id": "btn_label", "label": "Button label" },
+    { "type": "url", "id": "btn_link", "label": "Button link" },
+    { "type": "header", "content": "Media" },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "image_picker", "id": "image_1", "label": "Image 1 (brand story)" },
+    { "type": "image_picker", "id": "image_2", "label": "Image 2 (brand story)" },
+    { "type": "image_picker", "id": "bg_image", "label": "Background image" },
+    { "type": "text", "id": "video_url", "label": "Video URL (MP4)" },
+    { "type": "product", "id": "product", "label": "Featured product" },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "bg_color", "label": "Background color", "default": "#0a0a0a" },
+    { "type": "range", "id": "overlay_opacity", "label": "Overlay opacity", "min": 0, "max": 100, "step": 5, "default": 40 },
+    { "type": "select", "id": "section_width", "label": "Section width", "options": [{ "value": "page-width", "label": "Page width" }, { "value": "full-width", "label": "Full width" }], "default": "page-width" },
+    { "type": "range", "id": "padding_top", "label": "Padding top", "min": 0, "max": 120, "step": 8, "default": 60 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom", "min": 0, "max": 120, "step": 8, "default": 60 }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "Collection",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" }
+      ]
+    },
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        { "type": "text", "id": "icon", "label": "Icon (emoji or HTML)" },
+        { "type": "text", "id": "title", "label": "Title" },
+        { "type": "textarea", "id": "text", "label": "Text" }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Carousel Product",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Premium Content",
+      "settings": {
+        "layout": "banner",
+        "title": "Premium Content",
+        "bg_color": "#0a0a0a"
+      }
+    }
+  ]
+}
+{% endschema %}

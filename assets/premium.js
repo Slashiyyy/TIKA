@@ -50,6 +50,7 @@
     initParallaxSections();
     initImageReveal();
     initBackToTop();
+    initProductCarousels();
   }
 
   /* ============================================================
@@ -1029,6 +1030,28 @@
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    });
+  }
+
+  /* ============================================================
+     24. PRODUCT CAROUSEL
+     ============================================================ */
+  function initProductCarousels() {
+    document.querySelectorAll('.premium-carousel').forEach((carousel) => {
+      const track = carousel.querySelector('.premium-carousel__track');
+      const prev = carousel.querySelector('.premium-carousel__arrow--prev');
+      const next = carousel.querySelector('.premium-carousel__arrow--next');
+      if (!track || !prev || !next) return;
+
+      const scrollAmount = 300;
+
+      prev.addEventListener('click', () => {
+        track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      });
+
+      next.addEventListener('click', () => {
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      });
     });
   }
 
