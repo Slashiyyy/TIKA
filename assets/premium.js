@@ -43,6 +43,13 @@
     initInventoryBadges();
     initStyleQuiz();
     initCardAnimations();
+    initSmoothScroll();
+    initButtonEffects();
+    initPageTransitions();
+    initAnimatedCounters();
+    initParallaxSections();
+    initImageReveal();
+    initBackToTop();
   }
 
   /* ============================================================
@@ -832,6 +839,196 @@
     cards.forEach(card => {
       card.style.animationPlayState = 'paused';
       observer.observe(card);
+    });
+  }
+
+  /* ============================================================
+     17. LENIS SMOOTH SCROLL
+     ============================================================ */
+  function initSmoothScroll() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof Lenis === 'undefined') return;
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
+      infinite: false,
+      autoRaf: true,
+    });
+
+    lenis.on('scroll', (e) => {
+      const progressBar = document.querySelector('.scroll-progress-bar');
+      if (progressBar) {
+        progressBar.style.transform = `scaleX(${e.progress})`;
+      }
+    });
+
+    document.documentElement.classList.add('lenis');
+    window.__lenis = lenis;
+  }
+
+  /* ============================================================
+     18. MAGNETIC BUTTON HOVER
+     ============================================================ */
+  function initButtonEffects() {
+    const buttons = document.querySelectorAll('.btn, .button, .magnetic-btn-wrap');
+    if (!buttons.length) return;
+
+    buttons.forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const strength = btn.classList.contains('magnetic-btn-wrap') ? 0.4 : 0.15;
+        btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
+
+  /* ============================================================
+     19. PAGE TRANSITIONS
+     ============================================================ */
+  function initPageTransitions() {
+    const transitionEl = document.querySelector('.page-transition');
+    if (!transitionEl) return;
+
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript') || href.startsWith('mailto') || href.startsWith('tel') || href.startsWith('http') || href.startsWith('/products/') || href.startsWith('/collections/') || href.startsWith('/pages/') || href.startsWith('/blogs/') || href === '/' || href === '') return;
+      if (link.hasAttribute('data-no-transition')) return;
+      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+      e.preventDefault();
+      transitionEl.classList.add('active');
+
+      setTimeout(() => {
+        window.location.href = href;
+      }, 800);
+    });
+  }
+
+  /* ============================================================
+     20. ANIMATED COUNTERS
+     ============================================================ */
+  function initAnimatedCounters() {
+    const counters = document.querySelectorAll('.counter-value');
+    if (!counters.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    counters.forEach(c => observer.observe(c));
+
+    function animateCounter(el) {
+      const target = parseInt(el.dataset.target) || parseInt(el.textContent.replace(/,/g, '')) || 0;
+      if (!target) return;
+      const duration = 2000;
+      const start = performance.now();
+
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(eased * target);
+        el.textContent = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString();
+      }
+
+      requestAnimationFrame(tick);
+    }
+  }
+
+  /* ============================================================
+     21. PARALLAX SECTIONS
+     ============================================================ */
+  function initParallaxSections() {
+    const images = document.querySelectorAll('.parallax-image');
+    if (!images.length) return;
+
+    const lenis = window.__lenis;
+
+    function updateParallax() {
+      images.forEach(img => {
+        const rect = img.getBoundingClientRect();
+        const windowH = window.innerHeight;
+        if (rect.top > windowH || rect.bottom < 0) return;
+        const speed = parseFloat(img.dataset.speed) || 0.15;
+        const offset = (rect.top - windowH) * speed;
+        img.style.transform = `translateY(${offset}px)`;
+      });
+    }
+
+    if (lenis) {
+      lenis.on('scroll', updateParallax);
+    } else {
+      window.addEventListener('scroll', updateParallax, { passive: true });
+    }
+    updateParallax();
+
+    window.addEventListener('resize', updateParallax, { passive: true });
+  }
+
+  /* ============================================================
+     22. IMAGE LOAD REVEAL
+     ============================================================ */
+  function initImageReveal() {
+    const wrappers = document.querySelectorAll('.image-reveal');
+    if (!wrappers.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    wrappers.forEach(w => observer.observe(w));
+  }
+
+  /* ============================================================
+     23. BACK TO TOP
+     ============================================================ */
+  function initBackToTop() {
+    const btn = document.querySelector('.back-to-top');
+    if (!btn) return;
+
+    const lenis = window.__lenis;
+
+    if (lenis) {
+      lenis.on('scroll', (e) => {
+        btn.classList.toggle('visible', e.animatedScroll > 300);
+      });
+    } else {
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 300);
+      }, { passive: true });
+    }
+
+    btn.addEventListener('click', () => {
+      if (lenis) {
+        lenis.scrollTo(0, { duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
   }
 

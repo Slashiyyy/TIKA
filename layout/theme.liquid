@@ -43,6 +43,7 @@
 
     <!-- Premium Design System -->
     {{ 'premium.css' | asset_url | stylesheet_tag }}
+    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.22/dist/lenis.min.js" defer></script>
     <script src="{{ 'premium.js' | asset_url }}" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,6 +55,11 @@
 
     {% render 'chat-drawer' %}
 
+    <div class="page-transition"></div>
+    <div class="scroll-progress-bar"></div>
+    <button class="back-to-top" aria-label="Back to top">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
     <div class="page-wrapper">
       <div id="header-group">
         {% sections 'header-group' %}
