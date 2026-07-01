@@ -1067,14 +1067,15 @@
     const loader = document.getElementById('premium-loader');
     if (!loader) return;
 
-    // Already played this session — hide instantly and bail
-    if (sessionStorage.getItem('premium-loaded')) {
-      loader.style.display = 'none';
-      return;
+    try {
+      if (sessionStorage.getItem('premium-loaded')) {
+        loader.style.display = 'none';
+        return;
+      }
+      sessionStorage.setItem('premium-loaded', 'true');
+    } catch(e) {
+      // Storage unavailable (private browsing etc.) — continue normally
     }
-
-    // Set flag immediately so quick navigations don't replay the loader
-    sessionStorage.setItem('premium-loaded', 'true');
 
     const star = loader.querySelector('.premium-loader__star');
     if (!star) return;
@@ -1094,50 +1095,40 @@
   }
 
   /* ============================================================
-     26. HERO ENTRANCE
+     26. HERO ENTRANCE — safe CSS-only (no DOM manipulation)
      ============================================================ */
   function initHeroEntrance() {
     const hero = document.querySelector('.hero');
     if (!hero) return;
 
-    // Split heading into word spans
+    // Add entrance classes to hero children — CSS handles the animation
     const headings = hero.querySelectorAll('h1, h2, .hero__heading, .hero-heading');
     headings.forEach((h) => {
-      if (h.querySelector('.hero-heading-word')) return;
-      const text = h.textContent.trim();
-      if (!text) return;
-      const words = text.split(/\s+/);
-      h.innerHTML = words.map((word) => `<span class="hero-heading-word"><span>${word}</span></span>`).join(' ');
+      h.classList.add('reveal');
+      requestAnimationFrame(() => h.classList.add('active'));
     });
 
-    // Animate words with stagger
-    const wordSpans = hero.querySelectorAll('.hero-heading-word');
-    wordSpans.forEach((el, i) => {
-      const inner = el.querySelector('span');
-      if (inner) {
-        inner.style.animationDelay = `${0.2 + i * 0.08}s`;
-      }
-    });
-
-    // Fade in paragraphs
     const paragraphs = hero.querySelectorAll('p');
-    paragraphs.forEach((p) => p.classList.add('hero-paragraph'));
-    requestAnimationFrame(() => {
-      paragraphs.forEach((p) => p.classList.add('visible'));
+    paragraphs.forEach((p) => {
+      p.classList.add('reveal');
+      requestAnimationFrame(() => p.classList.add('active'));
     });
 
-    // Slide up buttons
     const buttons = hero.querySelectorAll('.button, .btn, a[class*="button"]');
-    buttons.forEach((b) => b.classList.add('hero-button'));
-    requestAnimationFrame(() => {
-      buttons.forEach((b) => b.classList.add('visible'));
+    buttons.forEach((b, i) => {
+      b.classList.add('reveal', `reveal-delay-${Math.min(i + 1, 5)}`);
+      requestAnimationFrame(() => b.classList.add('active'));
     });
 
-    // Scale in hero images
     const images = hero.querySelectorAll('img');
     images.forEach((img) => {
-      img.classList.add('hero-image');
-      requestAnimationFrame(() => img.classList.add('visible'));
+      img.style.opacity = '0';
+      img.style.transform = 'scale(1.04)';
+      img.style.transition = 'opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+      requestAnimationFrame(() => {
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+      });
     });
   }
 
