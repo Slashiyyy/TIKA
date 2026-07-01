@@ -1063,15 +1063,15 @@
      ============================================================ */
   function initStarLoader() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (sessionStorage.getItem('premium-loaded')) return;
+
+    // Set flag immediately so quick navigations don't replay the loader
+    sessionStorage.setItem('premium-loaded', 'true');
 
     const loader = document.getElementById('premium-loader');
     if (!loader) return;
 
     const star = loader.querySelector('.premium-loader__star');
     if (!star) return;
-
-    // Star reveals automatically via CSS animation.
 
     // After 1s, start zoom
     setTimeout(() => {
@@ -1080,7 +1080,6 @@
       // After zoom animation, hide loader
       setTimeout(() => {
         loader.classList.add('hidden');
-        sessionStorage.setItem('premium-loaded', 'true');
         setTimeout(() => {
           loader.remove();
         }, 600);
