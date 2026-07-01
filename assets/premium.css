@@ -3487,8 +3487,8 @@ select:focus {
   opacity: 0;
   transform: scale(0.6);
   filter: blur(8px);
-  animation: starReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-             starPulse 2s ease-in-out 0.4s infinite;
+  animation: starReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             starPulse 3s ease-in-out 0.6s infinite;
 }
 .premium-loader__star svg {
   width: 100%;
@@ -3512,7 +3512,7 @@ select:focus {
   50% { transform: scale(1.06); }
 }
 .premium-loader.zooming .premium-loader__star {
-  animation: starZoom 0.5s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  animation: starZoom 0.6s cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
 @keyframes starZoom {
   0% {

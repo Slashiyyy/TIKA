@@ -1080,7 +1080,7 @@
     const star = loader.querySelector('.premium-loader__star');
     if (!star) return;
 
-    // After 1s, start zoom
+    // After 2s, start zoom
     setTimeout(() => {
       loader.classList.add('zooming');
 
@@ -1091,7 +1091,7 @@
           loader.remove();
         }, 600);
       }, 500);
-    }, 1000);
+    }, 2000);
   }
 
   /* ============================================================
