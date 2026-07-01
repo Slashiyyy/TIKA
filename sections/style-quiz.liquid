@@ -1,0 +1,42 @@
+<div class="style-quiz section section--{{ section.settings.section_width }}">
+  <div class="page-width">
+    <h2 class="style-quiz__title reveal">{{ section.settings.title }}</h2>
+    <p class="style-quiz__subtitle reveal">{{ section.settings.subtitle }}</p>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Style Quiz",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page width" },
+        { "value": "full-width", "label": "Full width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Find Your Style"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Answer 5 questions and we'll find your perfect look"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Style Quiz",
+      "category": "Premium"
+    }
+  ]
+}
+{% endschema %}

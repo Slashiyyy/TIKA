@@ -1,0 +1,431 @@
+{% doc %}
+  @prompt
+    Create a dark/light mode toggle button that appears fixed on the page (e.g., bottom corner). When clicked, it switches the entire storefront between a dark theme and a light theme. The button should use a minimal icon (moon/sun) that matches a premium monochrome aesthetic. The toggle should save the user's preference using localStorage so it persists across page visits. The dark mode should apply a dark background with light text, and light mode should use a white/light background with dark text.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-theme-toggle-{{ ai_gen_id }} {
+    display: block;
+  }
+
+  .ai-theme-toggle-button-{{ ai_gen_id }} {
+    position: fixed;
+    {% if block.settings.position == 'bottom-right' %}
+      bottom: {{ block.settings.offset_vertical }}px;
+      right: {{ block.settings.offset_horizontal }}px;
+    {% elsif block.settings.position == 'bottom-left' %}
+      bottom: {{ block.settings.offset_vertical }}px;
+      left: {{ block.settings.offset_horizontal }}px;
+    {% elsif block.settings.position == 'top-right' %}
+      top: {{ block.settings.offset_vertical }}px;
+      right: {{ block.settings.offset_horizontal }}px;
+    {% else %}
+      top: {{ block.settings.offset_vertical }}px;
+      left: {{ block.settings.offset_horizontal }}px;
+    {% endif %}
+    width: {{ block.settings.button_size }}px;
+    height: {{ block.settings.button_size }}px;
+    border-radius: {{ block.settings.border_radius }}px;
+    background-color: {{ block.settings.button_bg_light }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color_light }};
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-theme-toggle-button-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .ai-theme-toggle-icon-{{ ai_gen_id }} {
+    width: calc({{ block.settings.button_size }}px * 0.5);
+    height: calc({{ block.settings.button_size }}px * 0.5);
+    color: {{ block.settings.icon_color_light }};
+    transition: all 0.3s ease;
+  }
+
+  .ai-theme-toggle-icon-{{ ai_gen_id }}.ai-theme-toggle-hidden-{{ ai_gen_id }} {
+    opacity: 0;
+    transform: rotate(180deg) scale(0);
+    position: absolute;
+  }
+
+  .ai-theme-toggle-icon-{{ ai_gen_id }}.ai-theme-toggle-visible-{{ ai_gen_id }} {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  body.ai-dark-mode-{{ ai_gen_id }} {
+    background-color: {{ block.settings.dark_bg_color }};
+    color: {{ block.settings.dark_text_color }};
+  }
+
+  body.ai-dark-mode-{{ ai_gen_id }} .ai-theme-toggle-button-{{ ai_gen_id }} {
+    background-color: {{ block.settings.button_bg_dark }};
+    border-color: {{ block.settings.border_color_dark }};
+  }
+
+  body.ai-dark-mode-{{ ai_gen_id }} .ai-theme-toggle-icon-{{ ai_gen_id }} {
+    color: {{ block.settings.icon_color_dark }};
+  }
+
+  {% if block.settings.apply_to_header %}
+    body.ai-dark-mode-{{ ai_gen_id }} header,
+    body.ai-dark-mode-{{ ai_gen_id }} .header {
+      background-color: {{ block.settings.dark_bg_color }};
+      color: {{ block.settings.dark_text_color }};
+    }
+
+    body.ai-dark-mode-{{ ai_gen_id }} header a,
+    body.ai-dark-mode-{{ ai_gen_id }} .header a {
+      color: {{ block.settings.dark_text_color }};
+    }
+  {% endif %}
+
+  {% if block.settings.apply_to_footer %}
+    body.ai-dark-mode-{{ ai_gen_id }} footer,
+    body.ai-dark-mode-{{ ai_gen_id }} .footer {
+      background-color: {{ block.settings.dark_bg_color }};
+      color: {{ block.settings.dark_text_color }};
+    }
+
+    body.ai-dark-mode-{{ ai_gen_id }} footer a,
+    body.ai-dark-mode-{{ ai_gen_id }} .footer a {
+      color: {{ block.settings.dark_text_color }};
+    }
+  {% endif %}
+
+  body.ai-dark-mode-{{ ai_gen_id }} h1,
+  body.ai-dark-mode-{{ ai_gen_id }} h2,
+  body.ai-dark-mode-{{ ai_gen_id }} h3,
+  body.ai-dark-mode-{{ ai_gen_id }} h4,
+  body.ai-dark-mode-{{ ai_gen_id }} h5,
+  body.ai-dark-mode-{{ ai_gen_id }} h6 {
+    color: {{ block.settings.dark_text_color }};
+  }
+
+  body.ai-dark-mode-{{ ai_gen_id }} p,
+  body.ai-dark-mode-{{ ai_gen_id }} span,
+  body.ai-dark-mode-{{ ai_gen_id }} div {
+    color: {{ block.settings.dark_text_color }};
+  }
+
+  {% if block.settings.invert_images %}
+    body.ai-dark-mode-{{ ai_gen_id }} img {
+      filter: brightness(0.9);
+    }
+  {% endif %}
+{% endstyle %}
+
+<theme-toggle-{{ ai_gen_id }} {{ block.shopify_attributes }}>
+  <button
+    class="ai-theme-toggle-button-{{ ai_gen_id }}"
+    aria-label="Toggle dark mode"
+    aria-pressed="false"
+  >
+    <svg
+      class="ai-theme-toggle-icon-{{ ai_gen_id }} ai-theme-toggle-sun-{{ ai_gen_id }} ai-theme-toggle-visible-{{ ai_gen_id }}"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg
+      class="ai-theme-toggle-icon-{{ ai_gen_id }} ai-theme-toggle-moon-{{ ai_gen_id }} ai-theme-toggle-hidden-{{ ai_gen_id }}"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+</theme-toggle-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ThemeToggle{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.storageKey = 'ai-theme-mode-{{ ai_gen_id }}';
+        this.button = null;
+        this.sunIcon = null;
+        this.moonIcon = null;
+        this.isDark = false;
+      }
+
+      connectedCallback() {
+        this.button = this.querySelector('.ai-theme-toggle-button-{{ ai_gen_id }}');
+        this.sunIcon = this.querySelector('.ai-theme-toggle-sun-{{ ai_gen_id }}');
+        this.moonIcon = this.querySelector('.ai-theme-toggle-moon-{{ ai_gen_id }}');
+
+        this.loadTheme();
+        this.setupEventListeners();
+      }
+
+      loadTheme() {
+        const savedTheme = localStorage.getItem(this.storageKey);
+        
+        if (savedTheme === 'dark') {
+          this.enableDarkMode();
+        } else if (savedTheme === 'light') {
+          this.enableLightMode();
+        } else {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) {
+            this.enableDarkMode();
+          } else {
+            this.enableLightMode();
+          }
+        }
+      }
+
+      setupEventListeners() {
+        this.button.addEventListener('click', () => {
+          this.toggleTheme();
+        });
+      }
+
+      toggleTheme() {
+        if (this.isDark) {
+          this.enableLightMode();
+        } else {
+          this.enableDarkMode();
+        }
+      }
+
+      enableDarkMode() {
+        this.isDark = true;
+        document.body.classList.add('ai-dark-mode-{{ ai_gen_id }}');
+        this.sunIcon.classList.remove('ai-theme-toggle-visible-{{ ai_gen_id }}');
+        this.sunIcon.classList.add('ai-theme-toggle-hidden-{{ ai_gen_id }}');
+        this.moonIcon.classList.remove('ai-theme-toggle-hidden-{{ ai_gen_id }}');
+        this.moonIcon.classList.add('ai-theme-toggle-visible-{{ ai_gen_id }}');
+        this.button.setAttribute('aria-pressed', 'true');
+        localStorage.setItem(this.storageKey, 'dark');
+      }
+
+      enableLightMode() {
+        this.isDark = false;
+        document.body.classList.remove('ai-dark-mode-{{ ai_gen_id }}');
+        this.moonIcon.classList.remove('ai-theme-toggle-visible-{{ ai_gen_id }}');
+        this.moonIcon.classList.add('ai-theme-toggle-hidden-{{ ai_gen_id }}');
+        this.sunIcon.classList.remove('ai-theme-toggle-hidden-{{ ai_gen_id }}');
+        this.sunIcon.classList.add('ai-theme-toggle-visible-{{ ai_gen_id }}');
+        this.button.setAttribute('aria-pressed', 'false');
+        localStorage.setItem(this.storageKey, 'light');
+      }
+    }
+
+    customElements.define('theme-toggle-{{ ai_gen_id }}', ThemeToggle{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Dark mode toggle",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Button position"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Position",
+      "options": [
+        {
+          "value": "bottom-right",
+          "label": "Bottom right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom left"
+        },
+        {
+          "value": "top-right",
+          "label": "Top right"
+        },
+        {
+          "value": "top-left",
+          "label": "Top left"
+        }
+      ],
+      "default": "bottom-right"
+    },
+    {
+      "type": "range",
+      "id": "offset_horizontal",
+      "label": "Horizontal offset",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "offset_vertical",
+      "label": "Vertical offset",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "label": "Button size",
+      "min": 40,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "header",
+      "content": "Light mode button"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_light",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color_light",
+      "label": "Border",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_light",
+      "label": "Icon",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Dark mode button"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_dark",
+      "label": "Background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "border_color_dark",
+      "label": "Border",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_color_dark",
+      "label": "Icon",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Dark mode colors"
+    },
+    {
+      "type": "color",
+      "id": "dark_bg_color",
+      "label": "Background",
+      "default": "#0a0a0a"
+    },
+    {
+      "type": "color",
+      "id": "dark_text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Advanced options"
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_to_header",
+      "label": "Apply to header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_to_footer",
+      "label": "Apply to footer",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "invert_images",
+      "label": "Dim images in dark mode",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dark mode toggle"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,339 @@
+{% doc %}
+  @prompt
+    Modify the header's language selector to display flag emojis next to each language name. Add 🇩🇿 before Arabic, 🇫🇷 before French, and 🇬🇧 before English. Use conditional logic based on the language ISO code (ar, fr, en) to prepend the correct flag emoji to each language name in the selector.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-language-selector-{{ ai_gen_id }} {
+    display: block;
+    position: relative;
+    width: {{ block.settings.desktop_width_percent }}%;
+  }
+
+  .ai-language-selector__button-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: {{ block.settings.button_background }};
+    color: {{ block.settings.button_text_color }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    cursor: pointer;
+    font-size: {{ block.settings.font_size }}px;
+    transition: all 0.3s ease;
+  }
+
+  .ai-language-selector__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_background }};
+  }
+
+  .ai-language-selector__flag-{{ ai_gen_id }} {
+    font-size: {{ block.settings.flag_size }}px;
+    line-height: 1;
+  }
+
+  .ai-language-selector__current-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ai-language-selector__icon-{{ ai_gen_id }} {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s ease;
+  }
+
+  .ai-language-selector__button-{{ ai_gen_id }}[aria-expanded="true"] .ai-language-selector__icon-{{ ai_gen_id }} {
+    transform: rotate(180deg);
+  }
+
+  .ai-language-selector__dropdown-{{ ai_gen_id }} {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 100%;
+    background-color: {{ block.settings.dropdown_background }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .ai-language-selector__dropdown-{{ ai_gen_id }}.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .ai-language-selector__option-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: {{ block.settings.dropdown_text_color }};
+    text-decoration: none;
+    font-size: {{ block.settings.font_size }}px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .ai-language-selector__option-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.dropdown_hover_background }};
+  }
+
+  .ai-language-selector__option-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.dropdown_active_background }};
+    font-weight: 600;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-language-selector-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<language-selector-{{ ai_gen_id }} class="ai-language-selector-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if localization.available_languages.size > 1 %}
+    <button
+      class="ai-language-selector__button-{{ ai_gen_id }}"
+      aria-expanded="false"
+      aria-label="Select language"
+    >
+      <span class="ai-language-selector__current-{{ ai_gen_id }}">
+        <span class="ai-language-selector__flag-{{ ai_gen_id }}">
+          {% case localization.language.iso_code %}
+            {% when 'ar' %}
+              🇩🇿
+            {% when 'fr' %}
+              🇫🇷
+            {% when 'en' %}
+              🇬🇧
+            {% else %}
+              🌐
+          {% endcase %}
+        </span>
+        <span>{{ localization.language.endonym_name }}</span>
+      </span>
+      <svg class="ai-language-selector__icon-{{ ai_gen_id }}" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="2,4 6,8 10,4"></polyline>
+      </svg>
+    </button>
+
+    <div class="ai-language-selector__dropdown-{{ ai_gen_id }}">
+      {% form 'localization', return_to: request.path %}
+        {% for language in localization.available_languages %}
+          <button
+            type="submit"
+            name="locale_code"
+            value="{{ language.iso_code }}"
+            class="ai-language-selector__option-{{ ai_gen_id }} {% if language.iso_code == localization.language.iso_code %}active{% endif %}"
+          >
+            <span class="ai-language-selector__flag-{{ ai_gen_id }}">
+              {% case language.iso_code %}
+                {% when 'ar' %}
+                  🇩🇿
+                {% when 'fr' %}
+                  🇫🇷
+                {% when 'en' %}
+                  🇬🇧
+                {% else %}
+                  🌐
+              {% endcase %}
+            </span>
+            <span>{{ language.endonym_name }}</span>
+          </button>
+        {% endfor %}
+      {% endform %}
+    </div>
+  {% endif %}
+</language-selector-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class LanguageSelector{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.button = this.querySelector('.ai-language-selector__button-{{ ai_gen_id }}');
+        this.dropdown = this.querySelector('.ai-language-selector__dropdown-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        if (!this.button || !this.dropdown) return;
+
+        this.button.addEventListener('click', () => {
+          this.toggleDropdown();
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!this.contains(event.target)) {
+            this.closeDropdown();
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            this.closeDropdown();
+          }
+        });
+      }
+
+      toggleDropdown() {
+        const isOpen = this.dropdown.classList.contains('active');
+        if (isOpen) {
+          this.closeDropdown();
+        } else {
+          this.openDropdown();
+        }
+      }
+
+      openDropdown() {
+        this.dropdown.classList.add('active');
+        this.button.setAttribute('aria-expanded', 'true');
+      }
+
+      closeDropdown() {
+        this.dropdown.classList.remove('active');
+        this.button.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    customElements.define('language-selector-{{ ai_gen_id }}', LanguageSelector{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Language with flags",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "flag_size",
+      "label": "Flag size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Dropdown style"
+    },
+    {
+      "type": "color",
+      "id": "dropdown_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "dropdown_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "dropdown_hover_background",
+      "label": "Hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "dropdown_active_background",
+      "label": "Active background",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    }
+  ],
+  "presets": [
+    {
+      "name": "Language with flags"
+    }
+  ]
+}
+{% endschema %}

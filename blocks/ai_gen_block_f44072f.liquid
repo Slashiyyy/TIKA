@@ -1,0 +1,386 @@
+{% doc %}
+  @prompt
+    Add flag emojis to the language/locale selector options: UK flag 🇬🇧 for English, Algeria flag 🇩🇿 for Arabic, and France flag 🇫🇷 for French. The flags should appear before the language name in the selector dropdown.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-locale-selector-{{ ai_gen_id }} {
+    position: relative;
+    display: inline-block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+  }
+
+  .ai-locale-selector__button-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: {{ block.settings.button_padding }}px {{ block.settings.button_padding | times: 1.5 }}px;
+    background-color: {{ block.settings.button_background }};
+    color: {{ block.settings.button_text_color }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    cursor: pointer;
+    font-size: {{ block.settings.font_size }}px;
+    width: 100%;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .ai-locale-selector__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_background }};
+  }
+
+  .ai-locale-selector__button-content-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ai-locale-selector__flag-{{ ai_gen_id }} {
+    font-size: {{ block.settings.flag_size }}px;
+    line-height: 1;
+  }
+
+  .ai-locale-selector__arrow-{{ ai_gen_id }} {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s ease;
+  }
+
+  .ai-locale-selector__arrow-{{ ai_gen_id }}.open {
+    transform: rotate(180deg);
+  }
+
+  .ai-locale-selector__dropdown-{{ ai_gen_id }} {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background-color: {{ block.settings.dropdown_background }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    z-index: 100;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .ai-locale-selector__dropdown-{{ ai_gen_id }}.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .ai-locale-selector__option-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: {{ block.settings.button_padding }}px {{ block.settings.button_padding | times: 1.5 }}px;
+    color: {{ block.settings.dropdown_text_color }};
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: {{ block.settings.font_size }}px;
+    text-decoration: none;
+  }
+
+  .ai-locale-selector__option-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.option_hover_background }};
+  }
+
+  .ai-locale-selector__option-{{ ai_gen_id }}.active {
+    background-color: {{ block.settings.option_active_background }};
+    font-weight: 600;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-locale-selector-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<locale-selector-{{ ai_gen_id }}
+  class="ai-locale-selector-{{ ai_gen_id }}"
+  {{ block.shopify_attributes }}
+>
+  {% liquid
+    assign current_locale = request.locale
+    assign available_locales = localization.available_languages
+    
+    assign locale_flags = '{"en":"🇬🇧","ar":"🇩🇿","fr":"🇫🇷"}' | parse_json
+  %}
+
+  <button
+    type="button"
+    class="ai-locale-selector__button-{{ ai_gen_id }}"
+    aria-expanded="false"
+    aria-label="Select language"
+  >
+    <span class="ai-locale-selector__button-content-{{ ai_gen_id }}">
+      <span class="ai-locale-selector__flag-{{ ai_gen_id }}">
+        {% if locale_flags[current_locale.iso_code] %}
+          {{ locale_flags[current_locale.iso_code] }}
+        {% endif %}
+      </span>
+      <span>{{ current_locale.endonym_name }}</span>
+    </span>
+    <svg
+      class="ai-locale-selector__arrow-{{ ai_gen_id }}"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+
+  <div class="ai-locale-selector__dropdown-{{ ai_gen_id }}">
+    {% for locale in available_locales %}
+      <a
+        href="#"
+        class="ai-locale-selector__option-{{ ai_gen_id }} {% if locale.iso_code == current_locale.iso_code %}active{% endif %}"
+        data-locale="{{ locale.iso_code }}"
+        lang="{{ locale.iso_code }}"
+      >
+        <span class="ai-locale-selector__flag-{{ ai_gen_id }}">
+          {% if locale_flags[locale.iso_code] %}
+            {{ locale_flags[locale.iso_code] }}
+          {% endif %}
+        </span>
+        <span>{{ locale.endonym_name }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</locale-selector-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class LocaleSelector{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.button = this.querySelector('.ai-locale-selector__button-{{ ai_gen_id }}');
+        this.dropdown = this.querySelector('.ai-locale-selector__dropdown-{{ ai_gen_id }}');
+        this.arrow = this.querySelector('.ai-locale-selector__arrow-{{ ai_gen_id }}');
+        this.options = this.querySelectorAll('.ai-locale-selector__option-{{ ai_gen_id }}');
+      }
+
+      connectedCallback() {
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.button.addEventListener('click', () => this.toggleDropdown());
+
+        this.options.forEach((option) => {
+          option.addEventListener('click', (e) => this.handleLocaleChange(e));
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!this.contains(e.target)) {
+            this.closeDropdown();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            this.closeDropdown();
+          }
+        });
+      }
+
+      toggleDropdown() {
+        const isOpen = this.dropdown.classList.contains('open');
+        if (isOpen) {
+          this.closeDropdown();
+        } else {
+          this.openDropdown();
+        }
+      }
+
+      openDropdown() {
+        this.dropdown.classList.add('open');
+        this.arrow.classList.add('open');
+        this.button.setAttribute('aria-expanded', 'true');
+      }
+
+      closeDropdown() {
+        this.dropdown.classList.remove('open');
+        this.arrow.classList.remove('open');
+        this.button.setAttribute('aria-expanded', 'false');
+      }
+
+      handleLocaleChange(e) {
+        e.preventDefault();
+        const localeCode = e.currentTarget.getAttribute('data-locale');
+        
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/localization';
+        
+        const localeInput = document.createElement('input');
+        localeInput.type = 'hidden';
+        localeInput.name = 'locale_code';
+        localeInput.value = localeCode;
+        
+        const returnToInput = document.createElement('input');
+        returnToInput.type = 'hidden';
+        returnToInput.name = 'return_to';
+        returnToInput.value = window.location.pathname;
+        
+        form.appendChild(localeInput);
+        form.appendChild(returnToInput);
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+
+    customElements.define('locale-selector-{{ ai_gen_id }}', LocaleSelector{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Language selector",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Button style"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_padding",
+      "label": "Padding",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Dropdown style"
+    },
+    {
+      "type": "color",
+      "id": "dropdown_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "dropdown_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "option_hover_background",
+      "label": "Option hover background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "option_active_background",
+      "label": "Active option background",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "header",
+      "content": "Border"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#cccccc"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "flag_size",
+      "label": "Flag size",
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    }
+  ],
+  "presets": [
+    {
+      "name": "Language selector"
+    }
+  ]
+}
+{% endschema %}

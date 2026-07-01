@@ -1,0 +1,81 @@
+<div class="find-your-fit section section--{{ section.settings.section_width }}">
+  <div class="find-your-fit__inner page-width">
+    <div class="reveal">
+      <h2 class="find-your-fit__title">{{ section.settings.title }}</h2>
+      <p class="find-your-fit__subtitle">{{ section.settings.subtitle }}</p>
+    </div>
+
+    <div class="find-your-fit__options reveal stagger-reveal">
+      <button class="find-your-fit__option" data-style="oversized">Oversized</button>
+      <button class="find-your-fit__option" data-style="regular">Regular</button>
+      <button class="find-your-fit__option" data-style="streetwear">Streetwear</button>
+      <button class="find-your-fit__option" data-style="minimal">Minimal</button>
+    </div>
+
+    <div class="find-your-fit__results">
+      {%- if section.settings.collection != blank -%}
+        {%- assign products = section.settings.collection.products -%}
+        {%- for product in products limit: 4 -%}
+          <div class="find-your-fit__result" style="animation-delay: {{ forloop.index0 | times: 0.1 }}s">
+            <div class="glass-card" style="padding:0;overflow:hidden;">
+              <a href="{{ product.url }}" style="text-decoration:none;color:inherit;">
+                <div style="aspect-ratio:3/4;overflow:hidden;">
+                  {%- if product.featured_image -%}
+                    <img src="{{ product.featured_image | img_url: '400x' }}" alt="{{ product.title }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease;" loading="lazy">
+                  {%- else -%}
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--premium-card-bg);color:rgba(255,255,255,0.1);font-size:48px;">{{ product.title | slice: 0 }}</div>
+                  {%- endif -%}
+                </div>
+                <div style="padding:16px 20px;">
+                  <div style="font-size:13px;font-weight:500;margin-bottom:4px;">{{ product.title }}</div>
+                  <div style="font-size:14px;font-weight:600;">{{ product.price | money }}</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Find Your Fit",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page width" },
+        { "value": "full-width", "label": "Full width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Find Your Fit"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Select your style preference and discover your perfect look"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Find Your Fit",
+      "category": "Premium"
+    }
+  ]
+}
+{% endschema %}

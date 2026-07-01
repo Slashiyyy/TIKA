@@ -1,0 +1,59 @@
+<div class="premium-marquee">
+  <div class="premium-marquee__track">
+    <span>
+       • NEW COLLECTION •         SALE LIVE • %20 OFF•    PREMIUM QUALITY •    BEST QUALITY • NEW COLLECTION • SALE LIVE • PREMIUM QUALITY •%20 OFF•
+    </span>
+
+
+<span>
+ NEW COLLECTION •         SALE LIVE •   %20 OFF•  PREMIUM QUALITY •    BEST QUALITY • NEW COLLECTION • SALE LIVE • PREMIUM QUALITY •%20 OFF•
+</span>
+
+
+  </div>
+</div>
+
+<style>
+.premium-marquee{
+    width:100%;
+    overflow:hidden;
+    background:#1c1c1c;
+    color:#fff;
+    padding:14px 0;
+    white-space:nowrap;
+}
+
+.premium-marquee__track{
+    display:flex;
+    width:max-content;
+    animation:scrollText 25s linear infinite;
+}
+
+.premium-marquee span{
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+
+@keyframes scrollText{
+    from{
+        transform:translateX(0);
+    }
+    to{
+        transform:translateX(-50%);
+    }
+}
+</style>
+
+{% schema %}
+{
+"name": "Premium Marquee",
+"settings": [],
+"presets": [
+{
+"name": "Premium Marquee"
+}
+]
+}
+{% endschema %}

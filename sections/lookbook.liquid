@@ -1,0 +1,114 @@
+<div class="lookbook section section--{{ section.settings.section_width }}">
+  <div class="page-width">
+    <div class="reveal">
+      <h2 class="lookbook__title" style="font-size:42px;font-weight:700;letter-spacing:-0.03em;margin-bottom:8px;">{{ section.settings.title }}</h2>
+      <p style="font-size:16px;color:rgba(0,0,0,0.4);margin-bottom:40px;">{{ section.settings.subtitle }}</p>
+    </div>
+    <div class="lookbook__grid reveal">
+      {%- for block in section.blocks -%}
+        <div class="lookbook__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.image -%}
+            <img src="{{ block.settings.image | img_url: '800x' }}" alt="{{ block.settings.alt }}" loading="lazy">
+          {%- else -%}
+            <div style="width:100%;height:100%;min-height:300px;background:rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,0.1);font-size:14px;">Image</div>
+          {%- endif -%}
+          {%- if block.settings.product_url != blank -%}
+            <button class="lookbook__hotspot" style="top:{{ block.settings.hotspot_y }}%;left:{{ block.settings.hotspot_x }}%;" onclick="window.location.href='{{ block.settings.product_url }}'">
+              +
+              <span class="lookbook__tooltip">{{ block.settings.product_label }}</span>
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Digital Lookbook",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page width" },
+        { "value": "full-width", "label": "Full width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Digital Lookbook"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Explore our latest editorial"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Lookbook Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "alt",
+          "label": "Alt text"
+        },
+        {
+          "type": "range",
+          "id": "hotspot_x",
+          "label": "Hotspot X position (%)",
+          "min": 0,
+          "max": 100,
+          "default": 50,
+          "step": 1
+        },
+        {
+          "type": "range",
+          "id": "hotspot_y",
+          "label": "Hotspot Y position (%)",
+          "min": 0,
+          "max": 100,
+          "default": 50,
+          "step": 1
+        },
+        {
+          "type": "url",
+          "id": "product_url",
+          "label": "Product URL"
+        },
+        {
+          "type": "text",
+          "id": "product_label",
+          "label": "Product label",
+          "default": "Shop look"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Digital Lookbook",
+      "category": "Premium",
+      "blocks": [
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" }
+      ]
+    }
+  ]
+}
+{% endschema %}

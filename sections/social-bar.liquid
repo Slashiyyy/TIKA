@@ -1,0 +1,56 @@
+<div class="social-bar">
+  <div class="social-bar__links">
+    <a href="{{ section.settings.instagram_url | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" class="social-bar__link" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+      </svg>
+      <span>Instagram</span>
+    </a>
+    <a href="{{ section.settings.tiktok_url | default: 'https://www.tiktok.com/' }}" target="_blank" rel="noopener" class="social-bar__link" aria-label="TikTok">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
+        <path d="M9 12a4 4 0 1 0 4 4V4h4a4 4 0 0 0 4 4"/>
+      </svg>
+      <span>TikTok</span>
+    </a>
+    <a href="mailto:{{ section.settings.email | default: 'hello@sakenw.com' }}" class="social-bar__link" aria-label="Email">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="20" height="20">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <path d="M22 4L12 13 2 4"/>
+      </svg>
+      <span>Email</span>
+    </a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Social Bar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "instagram_url",
+      "label": "Instagram URL",
+      "default": "https://www.instagram.com/"
+    },
+    {
+      "type": "text",
+      "id": "tiktok_url",
+      "label": "TikTok URL",
+      "default": "https://www.tiktok.com/"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email address",
+      "default": "hello@sakenw.com"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Social Bar"
+    }
+  ]
+}
+{% endschema %}

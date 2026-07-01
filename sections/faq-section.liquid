@@ -1,0 +1,104 @@
+<div class="faq-section section section--{{ section.settings.section_width }}">
+  <div class="page-width">
+    <div class="reveal">
+      <h2 class="faq-section__title">{{ section.settings.title }}</h2>
+      <p class="faq-section__subtitle">{{ section.settings.subtitle }}</p>
+    </div>
+
+    <div class="faq-accordion reveal">
+      {%- for block in section.blocks -%}
+        <div class="faq-item" {{ block.shopify_attributes }}>
+          <div class="faq-item__question">
+            <span>{{ block.settings.question }}</span>
+            <svg class="faq-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div class="faq-item__answer">
+            {{ block.settings.answer }}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "options": [
+        { "value": "page-width", "label": "Page width" },
+        { "value": "full-width", "label": "Full width" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Everything you need to know"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "How do I find my size?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "We provide detailed size guides on each product page. If you're unsure, feel free to contact our support team for personalized assistance."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "category": "Premium",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "question": "How do I find my size?",
+            "answer": "We provide detailed size guides on each product page. If you're unsure, feel free to contact our support team for personalized assistance."
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What is your shipping policy?",
+            "answer": "We offer free shipping on orders over $100. Standard shipping takes 5-8 business days. Express shipping is available at checkout."
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Can I return or exchange items?",
+            "answer": "Yes, we offer free returns within 30 days of delivery. Items must be unworn with all tags attached."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

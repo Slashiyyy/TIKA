@@ -1,0 +1,227 @@
+{% doc %}
+  @prompt
+    Move the dark/light mode toggle button into the header navigation bar, placing it inline alongside the search and cart icons. The toggle should use a minimal moon/sun icon that matches a premium monochrome aesthetic. It should save the user's preference using localStorage so it persists across page visits. Dark mode applies a dark background with light text; light mode uses a white/light background with dark text. The icon should be the same size and style as the existing search and cart icons in the header.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-theme-toggle-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .ai-theme-toggle-button-{{ ai_gen_id }} {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    color: {{ block.settings.icon_color }};
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .ai-theme-toggle-button-{{ ai_gen_id }}:hover {
+    opacity: 0.7;
+  }
+
+  .ai-theme-toggle-button-{{ ai_gen_id }}:active {
+    transform: scale(0.95);
+  }
+
+  .ai-theme-toggle-icon-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    stroke-width: {{ block.settings.icon_stroke_width }};
+  }
+
+  .ai-theme-toggle-icon-{{ ai_gen_id }}.ai-hidden-{{ ai_gen_id }} {
+    display: none;
+  }
+
+  body.dark-mode {
+    background-color: {{ block.settings.dark_bg_color }};
+    color: {{ block.settings.dark_text_color }};
+  }
+
+  body.dark-mode .ai-theme-toggle-button-{{ ai_gen_id }} {
+    color: {{ block.settings.dark_icon_color }};
+  }
+{% endstyle %}
+
+<theme-toggle-{{ ai_gen_id }} class="ai-theme-toggle-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <button
+    type="button"
+    class="ai-theme-toggle-button-{{ ai_gen_id }}"
+    aria-label="Toggle dark mode"
+    data-toggle-button
+  >
+    <svg
+      class="ai-theme-toggle-icon-{{ ai_gen_id }} ai-sun-icon-{{ ai_gen_id }}"
+      data-sun-icon
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+    <svg
+      class="ai-theme-toggle-icon-{{ ai_gen_id }} ai-moon-icon-{{ ai_gen_id }} ai-hidden-{{ ai_gen_id }}"
+      data-moon-icon
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+  </button>
+</theme-toggle-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ThemeToggle{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.button = this.querySelector('[data-toggle-button]');
+        this.sunIcon = this.querySelector('[data-sun-icon]');
+        this.moonIcon = this.querySelector('[data-moon-icon]');
+        this.storageKey = 'theme-preference';
+      }
+
+      connectedCallback() {
+        this.initializeTheme();
+        this.button.addEventListener('click', () => this.toggleTheme());
+      }
+
+      initializeTheme() {
+        const savedTheme = localStorage.getItem(this.storageKey);
+        
+        if (savedTheme === 'dark') {
+          this.enableDarkMode();
+        } else if (savedTheme === 'light') {
+          this.enableLightMode();
+        } else {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) {
+            this.enableDarkMode();
+          } else {
+            this.enableLightMode();
+          }
+        }
+      }
+
+      toggleTheme() {
+        const isDark = document.body.classList.contains('dark-mode');
+        
+        if (isDark) {
+          this.enableLightMode();
+          localStorage.setItem(this.storageKey, 'light');
+        } else {
+          this.enableDarkMode();
+          localStorage.setItem(this.storageKey, 'dark');
+        }
+      }
+
+      enableDarkMode() {
+        document.body.classList.add('dark-mode');
+        this.sunIcon.classList.add('ai-hidden-{{ ai_gen_id }}');
+        this.moonIcon.classList.remove('ai-hidden-{{ ai_gen_id }}');
+        this.button.setAttribute('aria-label', 'Switch to light mode');
+      }
+
+      enableLightMode() {
+        document.body.classList.remove('dark-mode');
+        this.sunIcon.classList.remove('ai-hidden-{{ ai_gen_id }}');
+        this.moonIcon.classList.add('ai-hidden-{{ ai_gen_id }}');
+        this.button.setAttribute('aria-label', 'Switch to dark mode');
+      }
+    }
+
+    customElements.define('theme-toggle-{{ ai_gen_id }}', ThemeToggle{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Dark mode toggle",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Icon style"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20,
+      "info": "Match the size of your search and cart icons"
+    },
+    {
+      "type": "range",
+      "id": "icon_stroke_width",
+      "label": "Icon stroke width",
+      "min": 1,
+      "max": 3,
+      "step": 0.5,
+      "default": 1.5
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color (light mode)",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Dark mode"
+    },
+    {
+      "type": "color",
+      "id": "dark_bg_color",
+      "label": "Background color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "dark_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "dark_icon_color",
+      "label": "Icon color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dark mode toggle"
+    }
+  ]
+}
+{% endschema %}
