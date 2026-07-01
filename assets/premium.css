@@ -3459,3 +3459,331 @@ select:focus {
     height: 100%;
   }
 }
+
+/* ================================================================
+   STAR LOADER
+   ================================================================ */
+.premium-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+.premium-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+.premium-loader__star {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.6);
+  filter: blur(8px);
+  animation: starReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             starPulse 2s ease-in-out 0.4s infinite;
+}
+.premium-loader__star svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)) drop-shadow(0 0 60px rgba(255,255,255,0.15));
+}
+@keyframes starReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+@keyframes starPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.premium-loader.zooming .premium-loader__star {
+  animation: starZoom 0.5s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+@keyframes starZoom {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(30);
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+/* ================================================================
+   HERO ENTRANCE ANIMATIONS
+   ================================================================ */
+.hero-heading-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+.hero-heading-word > span {
+  display: block;
+  animation: wordSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform: translateY(100%);
+  opacity: 0;
+}
+@keyframes wordSlideUp {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.hero-paragraph {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s,
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+}
+.hero-paragraph.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hero-button {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.8s,
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
+}
+.hero-button.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hero-image {
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s,
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+}
+.hero-image.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ================================================================
+   ANIMATED LINK UNDERLINE
+   ================================================================ */
+.premium-link {
+  position: relative;
+  text-decoration: none;
+}
+.premium-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.premium-link:hover::after {
+  width: 100%;
+}
+
+/* ================================================================
+   ENDING SECTION — PREMIUM FINALE
+   ================================================================ */
+.premium-finale {
+  position: relative;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+.premium-finale__bg {
+  position: absolute;
+  inset: -20px;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+.premium-finale__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%);
+}
+.premium-finale__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 80px 20px;
+  max-width: 700px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.premium-finale__content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.premium-finale__subtitle {
+  display: inline-block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16px;
+}
+.premium-finale__title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.premium-finale__text {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+.premium-finale__btn {
+  display: inline-block;
+}
+
+/* ================================================================
+   FOOTER REDESIGN — PREMIUM
+   ================================================================ */
+footer {
+  border-top: none !important;
+  padding-top: 40px !important;
+}
+footer .footer-content {
+  gap: 40px !important;
+}
+footer .footer-content > * {
+  padding: 0 !important;
+}
+footer .h3,
+footer .menu__heading__default {
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.4) !important;
+  margin-bottom: 16px !important;
+}
+footer a {
+  transition: color 0.3s ease, opacity 0.3s ease;
+  opacity: 0.6;
+}
+footer a:hover {
+  opacity: 1;
+  color: #fff !important;
+}
+footer .email-signup {
+  max-width: 400px;
+}
+footer .email-signup input {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 100px !important;
+  padding: 12px 20px !important;
+  color: #fff !important;
+  font-size: 0.9rem !important;
+}
+footer .email-signup input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+footer .email-signup button {
+  border-radius: 100px !important;
+  padding: 12px 24px !important;
+  background: #fff !important;
+  color: #000 !important;
+  font-weight: 600 !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+footer .email-signup button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(255,255,255,0.15);
+}
+footer .social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s ease;
+  opacity: 1;
+}
+footer .social-links a:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-2px) scale(1.05);
+}
+footer .footer-logo img {
+  max-height: 40px !important;
+}
+
+/* ---- Reducerd motion overrides ---- */
+@media (prefers-reduced-motion: reduce) {
+  .premium-loader {
+    display: none !important;
+  }
+  .hero-heading-word > span {
+    transform: none !important;
+    opacity: 1 !important;
+    animation: none !important;
+  }
+  .hero-paragraph,
+  .hero-button,
+  .hero-image {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .premium-finale__bg {
+    transform: none !important;
+  }
+}
+
+/* ---- Mobile ---- */
+@media screen and (max-width: 749px) {
+  .premium-loader__star {
+    width: 60px;
+    height: 60px;
+  }
+  .premium-finale {
+    min-height: 360px;
+  }
+  .premium-finale__content {
+    padding: 60px 20px;
+  }
+  .premium-footer .email-signup {
+    max-width: 100%;
+  }
+  .premium-footer .social-links a {
+    width: 36px;
+    height: 36px;
+  }
+}

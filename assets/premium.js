@@ -28,6 +28,8 @@
   }
 
   function init() {
+    initStarLoader();
+    initHeroEntrance();
     initRevealAnimations();
     initScrollHeader();
     initCustomCursor();
@@ -51,6 +53,7 @@
     initImageReveal();
     initBackToTop();
     initProductCarousels();
+    initFinaleParallax();
   }
 
   /* ============================================================
@@ -1053,6 +1056,111 @@
         track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
       });
     });
+  }
+
+  /* ============================================================
+     25. STAR LOADER
+     ============================================================ */
+  function initStarLoader() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (sessionStorage.getItem('premium-loaded')) return;
+
+    const loader = document.getElementById('premium-loader');
+    if (!loader) return;
+
+    const star = loader.querySelector('.premium-loader__star');
+    if (!star) return;
+
+    // Star reveals automatically via CSS animation.
+
+    // After 1s, start zoom
+    setTimeout(() => {
+      loader.classList.add('zooming');
+
+      // After zoom animation, hide loader
+      setTimeout(() => {
+        loader.classList.add('hidden');
+        sessionStorage.setItem('premium-loaded', 'true');
+        setTimeout(() => {
+          loader.remove();
+        }, 600);
+      }, 500);
+    }, 1000);
+  }
+
+  /* ============================================================
+     26. HERO ENTRANCE
+     ============================================================ */
+  function initHeroEntrance() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+
+    // Split heading into word spans
+    const headings = hero.querySelectorAll('h1, h2, .hero__heading, .hero-heading');
+    headings.forEach((h) => {
+      if (h.querySelector('.hero-heading-word')) return;
+      const text = h.textContent.trim();
+      if (!text) return;
+      const words = text.split(/\s+/);
+      h.innerHTML = words.map((word) => `<span class="hero-heading-word"><span>${word}</span></span>`).join(' ');
+    });
+
+    // Animate words with stagger
+    const wordSpans = hero.querySelectorAll('.hero-heading-word');
+    wordSpans.forEach((el, i) => {
+      const inner = el.querySelector('span');
+      if (inner) {
+        inner.style.animationDelay = `${0.2 + i * 0.08}s`;
+      }
+    });
+
+    // Fade in paragraphs
+    const paragraphs = hero.querySelectorAll('p');
+    paragraphs.forEach((p) => p.classList.add('hero-paragraph'));
+    requestAnimationFrame(() => {
+      paragraphs.forEach((p) => p.classList.add('visible'));
+    });
+
+    // Slide up buttons
+    const buttons = hero.querySelectorAll('.button, .btn, a[class*="button"]');
+    buttons.forEach((b) => b.classList.add('hero-button'));
+    requestAnimationFrame(() => {
+      buttons.forEach((b) => b.classList.add('visible'));
+    });
+
+    // Scale in hero images
+    const images = hero.querySelectorAll('img');
+    images.forEach((img) => {
+      img.classList.add('hero-image');
+      requestAnimationFrame(() => img.classList.add('visible'));
+    });
+  }
+
+  /* ============================================================
+     27. FINALE PARALLAX
+     ============================================================ */
+  function initFinaleParallax() {
+    const finale = document.querySelector('.premium-finale');
+    if (!finale) return;
+    const bg = finale.querySelector('.premium-finale__bg');
+    if (!bg) return;
+
+    const lenis = window.__lenis;
+
+    function updateParallax() {
+      const rect = finale.getBoundingClientRect();
+      const windowH = window.innerHeight;
+      if (rect.top > windowH || rect.bottom < 0) return;
+      const offset = (rect.top - windowH) * 0.08;
+      bg.style.transform = `translateY(${offset}px)`;
+    }
+
+    if (lenis) {
+      lenis.on('scroll', updateParallax);
+    } else {
+      window.addEventListener('scroll', updateParallax, { passive: true });
+    }
+    updateParallax();
   }
 
 })();
