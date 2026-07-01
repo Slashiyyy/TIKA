@@ -941,8 +941,11 @@
     counters.forEach(c => observer.observe(c));
 
     function animateCounter(el) {
-      const target = parseInt(el.dataset.target) || parseInt(el.textContent.replace(/,/g, '')) || 0;
+      const raw = el.dataset.target || el.textContent.replace(/,/g, '');
+      const target = parseFloat(raw) || 0;
       if (!target) return;
+      const suffix = el.dataset.suffix || '';
+      const isDecimal = raw.includes('.');
       const duration = 2000;
       const start = performance.now();
 
@@ -950,10 +953,11 @@
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(eased * target);
-        el.textContent = current.toLocaleString();
+        const current = eased * target;
+        const display = isDecimal ? current.toFixed(1) : Math.round(current).toLocaleString();
+        el.textContent = display + suffix;
         if (progress < 1) requestAnimationFrame(tick);
-        else el.textContent = target.toLocaleString();
+        else el.textContent = (isDecimal ? target.toFixed(1) : target.toLocaleString()) + suffix;
       }
 
       requestAnimationFrame(tick);
@@ -1060,7 +1064,7 @@
   }
 
   /* ============================================================
-     25. STAR LOADER
+     25. STAR LOADER — cinematic, ~1s, once per session
      ============================================================ */
   function initStarLoader() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1074,25 +1078,25 @@
         return;
       }
       sessionStorage.setItem('premium-loaded', 'true');
-    } catch(e) {
-      // Storage unavailable (private browsing etc.) — continue normally
-    }
+    } catch(e) {}
 
     const star = loader.querySelector('.premium-loader__star');
     if (!star) return;
 
-    // After 2s, start zoom
+    // Phase 1: fade star in on next frame
+    requestAnimationFrame(() => {
+      star.classList.add('visible');
+    });
+
+    // Phase 2: cinematic zoom + reveal after ~650ms
     setTimeout(() => {
       loader.classList.add('zooming');
 
-      // After zoom animation, hide loader
+      // Phase 3: remove from DOM after zoom completes
       setTimeout(() => {
-        loader.classList.add('hidden');
-        setTimeout(() => {
-          loader.remove();
-        }, 600);
-      }, 500);
-    }, 2000);
+        if (loader.parentNode) loader.remove();
+      }, 400);
+    }, 650);
   }
 
   /* ============================================================

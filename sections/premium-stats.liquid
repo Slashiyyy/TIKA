@@ -1,0 +1,140 @@
+<div class="premium-stats">
+  <div class="premium-stats__grid page-width">
+    <div class="premium-stats__row">
+      <div class="premium-stats__item reveal">
+        <span class="premium-stats__number counter-value" data-target="{{ section.settings.stat_1_value }}" data-suffix="{{ section.settings.stat_1_suffix }}">0</span>
+        <span class="premium-stats__label">{{ section.settings.stat_1_label }}</span>
+      </div>
+      <div class="premium-stats__divider" aria-hidden="true"></div>
+      <div class="premium-stats__item reveal">
+        <span class="premium-stats__number counter-value" data-target="{{ section.settings.stat_2_value }}" data-suffix="{{ section.settings.stat_2_suffix }}">0</span>
+        <span class="premium-stats__label">{{ section.settings.stat_2_label }}</span>
+      </div>
+      <div class="premium-stats__divider" aria-hidden="true"></div>
+      <div class="premium-stats__item reveal">
+        <span class="premium-stats__number counter-value" data-target="{{ section.settings.stat_3_value }}" data-suffix="{{ section.settings.stat_3_suffix }}">0</span>
+        <span class="premium-stats__label">{{ section.settings.stat_3_label }}</span>
+      </div>
+      <div class="premium-stats__divider" aria-hidden="true"></div>
+      <div class="premium-stats__item reveal">
+        <span class="premium-stats__number counter-value" data-target="{{ section.settings.stat_4_value }}" data-suffix="{{ section.settings.stat_4_suffix }}">0</span>
+        <span class="premium-stats__label">{{ section.settings.stat_4_label }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Premium Stats",
+  "class": "premium-stats-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "stat_1_value",
+      "label": "Stat 1 value",
+      "default": "50"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_suffix",
+      "label": "Stat 1 suffix",
+      "default": "K+"
+    },
+    {
+      "type": "text",
+      "id": "stat_1_label",
+      "label": "Stat 1 label",
+      "default": "Happy Customers"
+    },
+    {
+      "type": "header",
+      "content": "Stat 2"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_value",
+      "label": "Stat 2 value",
+      "default": "4.9"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_suffix",
+      "label": "Stat 2 suffix",
+      "default": "★"
+    },
+    {
+      "type": "text",
+      "id": "stat_2_label",
+      "label": "Stat 2 label",
+      "default": "Average Rating"
+    },
+    {
+      "type": "header",
+      "content": "Stat 3"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_value",
+      "label": "Stat 3 value",
+      "default": "120"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_suffix",
+      "label": "Stat 3 suffix",
+      "default": "+"
+    },
+    {
+      "type": "text",
+      "id": "stat_3_label",
+      "label": "Stat 3 label",
+      "default": "Cities Reached"
+    },
+    {
+      "type": "header",
+      "content": "Stat 4"
+    },
+    {
+      "type": "text",
+      "id": "stat_4_value",
+      "label": "Stat 4 value",
+      "default": "98"
+    },
+    {
+      "type": "text",
+      "id": "stat_4_suffix",
+      "label": "Stat 4 suffix",
+      "default": "%"
+    },
+    {
+      "type": "text",
+      "id": "stat_4_label",
+      "label": "Stat 4 label",
+      "default": "Customer Satisfaction"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Premium Stats",
+      "settings": {
+        "stat_1_value": "50",
+        "stat_1_suffix": "K+",
+        "stat_1_label": "Happy Customers",
+        "stat_2_value": "4.9",
+        "stat_2_suffix": "★",
+        "stat_2_label": "Average Rating",
+        "stat_3_value": "120",
+        "stat_3_suffix": "+",
+        "stat_3_label": "Cities Reached",
+        "stat_4_value": "98",
+        "stat_4_suffix": "%",
+        "stat_4_label": "Customer Satisfaction"
+      }
+    }
+  ]
+}
+{% endschema %}
