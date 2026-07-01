@@ -54,6 +54,7 @@
     initBackToTop();
     initProductCarousels();
     initFinaleParallax();
+    initPremiumReviews();
   }
 
   /* ============================================================
@@ -1157,6 +1158,167 @@
       window.addEventListener('scroll', updateParallax, { passive: true });
     }
     updateParallax();
+  }
+
+  /* ============================================================
+     27. PREMIUM REVIEWS
+     ============================================================ */
+  function initPremiumReviews() {
+    const track = document.querySelector('.premium-reviews__track');
+    if (!track) return;
+
+    const isMobile = () => window.innerWidth <= 749;
+
+    // ---- Scroll reveal for cards (handled by initRevealAnimations via .reveal class)
+
+    // ---- Mobile: snap-scroll + drag support ----
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    if (isMobile()) {
+      track.addEventListener('pointerdown', (e) => {
+        if (!isMobile()) return;
+        isDown = true;
+        track.setPointerCapture(e.pointerId);
+        track.style.cursor = 'grabbing';
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+      });
+      track.addEventListener('pointermove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        track.scrollLeft = scrollLeft - walk;
+      });
+      track.addEventListener('pointerup', () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+      });
+      track.addEventListener('pointerleave', () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+      });
+    }
+
+    // ---- Dots ----
+    const cards = track.querySelectorAll('.premium-reviews__card');
+    if (cards.length && isMobile()) {
+      const dotsContainer = document.querySelector('.premium-reviews__dots');
+      if (!dotsContainer) {
+        const container = document.createElement('div');
+        container.className = 'premium-reviews__dots';
+        track.parentNode.insertBefore(container, track.nextSibling);
+        cards.forEach((_, i) => {
+          const dot = document.createElement('button');
+          dot.className = 'premium-reviews__dot' + (i === 0 ? ' active' : '');
+          dot.setAttribute('aria-label', 'Go to review ' + (i + 1));
+          dot.addEventListener('click', () => {
+            const card = cards[i];
+            if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          });
+          container.appendChild(dot);
+        });
+      }
+      // Update dots on scroll
+      const dots = document.querySelectorAll('.premium-reviews__dot');
+      const updateDots = () => {
+        const containerRect = track.getBoundingClientRect();
+        const center = containerRect.left + containerRect.width / 2;
+        let closestIdx = 0;
+        let closestDist = Infinity;
+        cards.forEach((card, i) => {
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const dist = Math.abs(cardCenter - center);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestIdx = i;
+          }
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === closestIdx);
+        });
+      };
+      track.addEventListener('scroll', updateDots, { passive: true });
+    }
+
+    // ---- Form popup ----
+    const formBtn = document.getElementById('premiumReviewFormBtn');
+    const overlay = document.getElementById('premiumReviewOverlay');
+    const closeBtn = document.getElementById('premiumReviewFormClose');
+    if (formBtn && overlay) {
+      formBtn.addEventListener('click', () => {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+      const closeForm = () => {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+      if (closeBtn) closeBtn.addEventListener('click', closeForm);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeForm();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) closeForm();
+      });
+    }
+
+    // ---- Star rating interaction ----
+    const starContainer = document.getElementById('premiumReviewStars');
+    if (starContainer) {
+      let currentRating = 0;
+      const stars = starContainer.querySelectorAll('.premium-review-form__star');
+      const updateStars = (rating) => {
+        stars.forEach((s) => {
+          const r = parseInt(s.getAttribute('data-rating'), 10);
+          s.classList.toggle('active', r <= rating);
+          s.setAttribute('fill', r <= rating ? '#d4a853' : 'none');
+          s.setAttribute('stroke', r <= rating ? '#d4a853' : '#d4a853');
+        });
+      };
+      stars.forEach((star) => {
+        star.addEventListener('click', () => {
+          currentRating = parseInt(star.getAttribute('data-rating'), 10);
+          updateStars(currentRating);
+        });
+        star.addEventListener('mouseenter', () => {
+          const r = parseInt(star.getAttribute('data-rating'), 10);
+          updateStars(r);
+        });
+        starContainer.addEventListener('mouseleave', () => {
+          updateStars(currentRating);
+        });
+      });
+    }
+
+    // ---- Form submission placeholder ----
+    const form = document.getElementById('premiumReviewForm');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('premiumReviewName');
+        const text = document.getElementById('premiumReviewText');
+        const photo = document.getElementById('premiumReviewPhoto');
+        // Placeholder: log data
+        console.log('Review submitted:', {
+          name: name?.value,
+          rating: currentRating,
+          text: text?.value,
+          photo: photo?.files?.[0]?.name || null
+        });
+        // Show success + reset
+        form.innerHTML = '<p style="text-align:center;color:#d4a853;font-size:1.1rem;padding:30px 0;">✅ ' + (document.querySelector('.premium-review-form__title')?.textContent || 'تم إرسال تقييمك') + '</p>';
+        setTimeout(() => {
+          if (overlay) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+          }
+        }, 2000);
+      });
+    }
   }
 
 })();
