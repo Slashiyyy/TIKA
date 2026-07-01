@@ -1064,11 +1064,17 @@
   function initStarLoader() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Set flag immediately so quick navigations don't replay the loader
-    sessionStorage.setItem('premium-loaded', 'true');
-
     const loader = document.getElementById('premium-loader');
     if (!loader) return;
+
+    // Already played this session — hide instantly and bail
+    if (sessionStorage.getItem('premium-loaded')) {
+      loader.style.display = 'none';
+      return;
+    }
+
+    // Set flag immediately so quick navigations don't replay the loader
+    sessionStorage.setItem('premium-loaded', 'true');
 
     const star = loader.querySelector('.premium-loader__star');
     if (!star) return;
